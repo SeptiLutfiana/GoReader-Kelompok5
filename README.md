@@ -2,7 +2,6 @@
 
 # Kelompok 5
 
-# Pembagian Tugas
 - Siti Maisaroh
 - Septi Lutfiana
 - Arya Wicksana
