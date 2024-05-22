@@ -1,19 +1,8 @@
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
-export const metadata: Metadata = {
-  title: "Next.js SignIn Page | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Signin Page TailAdmin Dashboard Template",
-};
-
-const SignIn: React.FC = () => {
+const Login = () => {
   return (
     <>
-
       <div className="w-full h-screen flex items-start">
         <div className='relative w-3/5 h-full bg-[#1679AB] flex flex-col'>
           <div className='absolute top-[30%] left-[10%] flex flex-col'>
@@ -69,7 +58,7 @@ const SignIn: React.FC = () => {
               </div>
               <div>
                 <a
-                  href="/"
+                  href="@/src/app/page"
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-[#1679AB] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
@@ -78,7 +67,7 @@ const SignIn: React.FC = () => {
 
               </div>
               <div className="text-sm flex justify-center">
-                <a href="/auth/signup" className="font-semibold text-gray-900 hover:text-[#1679AB]">
+                <a href="@/src/app/register" className="font-semibold text-gray-900 hover:text-[#1679AB]">
                   Don't have an account?
                 </a>
               </div>
@@ -88,6 +77,6 @@ const SignIn: React.FC = () => {
       </div>
     </>
   );
-};
+}
 
-export default SignIn;
+export default Login;
