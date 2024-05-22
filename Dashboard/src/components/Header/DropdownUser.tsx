@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -161,11 +162,12 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <Link href="/auth/signin"
+              className="flex items-center gap-3.5 text-sm px-6 font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
           <svg
             className="fill-current"
             width="22"
-            height="22"
+            height="52"
             viewBox="0 0 22 22"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -180,7 +182,7 @@ const DropdownUser = () => {
             />
           </svg>
           Log Out
-        </button>
+        </Link>
       </div>
       {/* <!-- Dropdown End --> */}
     </div>
