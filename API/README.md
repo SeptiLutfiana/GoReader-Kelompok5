@@ -1,1 +1,0 @@
-Bagian Septi Lutfiana
