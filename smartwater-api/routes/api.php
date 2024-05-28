@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\WaterMeterController;
+use App\Http\Controllers\SmartWaterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routess,a
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
@@ -19,4 +19,4 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('watermeters', WaterMeterController::class);
+Route::post('/submit', [SmartWaterController::class, 'index']);

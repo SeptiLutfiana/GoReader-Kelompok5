@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('smartwater', function (Blueprint $table) {
+        Schema::create('smart_waters', function (Blueprint $table) {
             $table->id();
             $table->string('device_id');
             $table->integer('reading');
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('smartwater');
+        Schema::dropIfExists('smart_waters');
     }
 };

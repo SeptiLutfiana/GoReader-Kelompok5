@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WaterMeter extends Model
+class SmartWater extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -14,3 +14,4 @@ class WaterMeter extends Model
         'taken_at',
     ];
 }
+
