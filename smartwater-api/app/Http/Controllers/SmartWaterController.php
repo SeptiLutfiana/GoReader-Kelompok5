@@ -15,4 +15,16 @@ class SmartWaterController extends Controller
     ],
         200);
 }
+public function store(Request $request)
+    {
+        $smartwater = new SmartWater($request->all());
+        $smartwater->save();
+
+        return response()->json([
+            'data' => $smartwater,
+            'message' => 'Water meter created successfully',
+        ],
+            201);
+
+    }
 }

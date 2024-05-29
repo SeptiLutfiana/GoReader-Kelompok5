@@ -19,4 +19,5 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/submit', [SmartWaterController::class, 'index']);
+// Route::post('/submit', [SmartWaterController::class, 'store']);
+Route::apiResource('smartwaters', SmartWaterController::class);
