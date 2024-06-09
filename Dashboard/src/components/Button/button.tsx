@@ -23,8 +23,7 @@ export const EditButton = () => {
 
 export const DeleteButton = () => {
     return(
-        <button 
-        className="rounded-sm border p-1 hover:bg-red-100">
+        <button className="rounded-sm border p-1 hover:bg-red-100">
             <IoTrashOutline size={20}/>
         </button>
     )

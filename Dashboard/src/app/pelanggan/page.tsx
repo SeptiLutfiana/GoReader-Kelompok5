@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Halaman Manajemen Pelanggan",
 };
 
-const Pelanggan = () => {
+export const Pelanggan = () => {
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">

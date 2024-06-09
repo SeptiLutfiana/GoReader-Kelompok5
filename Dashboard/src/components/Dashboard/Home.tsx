@@ -1,7 +1,7 @@
 import React from "react";
 import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsListCheck } from "react-icons/bs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-
+import ContactTabel from "@/app/pelanggan/tabel";
 function Home(){
 
     const data = [
@@ -143,7 +143,9 @@ function Home(){
                 <h1>50.000</h1>
               </div>
             </div>
-
+            <div>
+              <ContactTabel/>
+            </div>
             <div className='charts'>
               <ResponsiveContainer width="100%" height="100%">
                   <BarChart
