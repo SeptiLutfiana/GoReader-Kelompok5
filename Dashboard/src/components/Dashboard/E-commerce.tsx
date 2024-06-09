@@ -15,7 +15,7 @@ const ECommerce: React.FC = () => {
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title="Perangkat Aktif" total="25">
+        <CardDataStats title="Jumlah Perangkat" total="25">
           <svg
             className="fill-primary dark:fill-white"
             width="22"
