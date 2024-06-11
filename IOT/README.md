@@ -1,1 +1,0 @@
-Siti Maisaroh dan Septi Lutfiana
