@@ -1,0 +1,135 @@
+rom flask import Flask, request, jsonify
+import base64
+import os
+import cv2
+import pytesseract
+import firebase_admin
+from firebase_admin import credentials, firestore
+from datetime import datetime
+import imutils
+import numpy as np
+app = Flask(__name__)
+
+# Direktori penyimpanan untuk gambar yang diunggah
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# Path ke file kredensial Firebase
+cred = credentials.Certificate("firebase_credentials.json")  
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+def get_next_counter_value():
+    counter_ref = db.collection('counters').document('ocr_results_counter')
+    counter_doc = counter_ref.get()
+    if counter_doc.exists:
+        counter_value = counter_doc.get('count') + 1
+    else:
+        counter_value = 1
+    counter_ref.set({'count': counter_value})
+    return counter_value
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    data = request.json
+if 'image' not in data:
+        return jsonify({'error': 'No image data in request'}), 400
+
+    # Decode the base64 image
+    image_data = base64.b64decode(data['image'])
+
+    # nama file dan path untuk menyimpan gambar
+    image_hasil = f'uploaded_image_{datetime.now().strftime("%Y%m%d%H%M%S")}.jpg'
+    image_path = os.path.join(UPLOAD_FOLDER, image_hasil)
+
+    # Simpan gambar ke file lokal
+    with open(image_path, 'wb') as f:
+        f.write(image_data)
+
+    # Panggil fungsi untuk membaca angka dari gambar
+    result = read_water_meter(image_path)
+
+    # Metadata
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H:%M:%S")
+
+    # Dapatkan nilai counter berikutnya untuk ID
+    ocr_result_id = get_next_counter_value()
+
+    # Buat dokumen baru di koleksi `ocr_results`
+    ocr_data = {
+        "id": ocr_result_id,
+        "device_name": "kelompok5",
+        "date": date_str,
+        "time": time_str,
+        "image_filename": image_hasil,
+        "extracted_text": result
+    }
+# Simpan data di Firestore
+    db.collection('ocr_results').document(str(ocr_result_id)).set(ocr_data)
+
+    response = {
+        "ocr_result_id": ocr_result_id,
+        "device_name": "Kelompok5",
+        "date": date_str,
+        "time": time_str,
+        "image_filename": image_hasil,
+        "extracted_text": result
+    }
+
+    return jsonify(response), 200
+
+# Fungsi untuk mendeteksi dan mengambil angka berwarna merah
+def read_water_meter(image_path):
+    # Baca gambar
+    image = cv2.imread(image_path)
+    ROI = (150, 190, 220, 50)
+    # Memotong ROI dari gambar asli
+    x, y, w, h = ROI
+    ROI_image = image[y:y+h, x:x+w]
+    # Ubah gambar ke dalam skala abu-abu
+    gray = cv2.cvtColor(ROI_image, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (1, 1), 0)
+    # Mengurangi noise dengan GaussianBlur
+    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    dist = cv2.distanceTransform(thresh, cv2.DIST_L2, 5)
+    dist = cv2.normalize(dist, dist, 5, 1.0, cv2.NORM_MINMAX)
+    dist = (dist * 255).astype('uint8')
+    dist = cv2.threshold(dist, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    # Define kernel for dilation
+    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (1, 1))
+    dilation = cv2.dilate(thresh, kernel, iterations=1)
+dilation = cv2.dilate(thresh, kernel, iterations=1)
+    opening = cv2.morphologyEx(dist, cv2.MORPH_OPEN, kernel)
+
+    # Find contours
+    cnts = cv2.findContours(opening.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    nums = []
+    for c in cnts:
+        (x, y, w, h) = cv2.boundingRect(c)
+        if w >= 15 and h > 20:
+           nums.append(c)
+
+    if nums:
+       nums = np.vstack([nums[i] for i in range(0, len(nums))])
+       null = cv2.convexHull(nums)
+
+       mask = np.zeros(dilation.shape[:2], dtype='uint8')
+       cv2.drawContours(mask, [null], -1, 255, -1)
+       mask = cv2.dilate(mask, None, iterations=2)
+
+       final = cv2.bitwise_and(opening, opening, mask=mask)
+    # Gunakan pytesseract untuk melakukan OCR pada gambar
+    text = pytesseract.image_to_string(final, config='--psm 6')
+
+    # Bersihkan hasil OCR dari karakter non-digit
+    cleaned_text = ''.join(filter(str.isdigit, text))
+
+    return cleaned_text
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

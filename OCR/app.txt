@@ -1,0 +1,104 @@
+from flask import Flask, request, jsonify
+import base64
+import os
+import cv2
+import pytesseract
+import firebase_admin
+from firebase_admin import credentials, firestore
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Direktori penyimpanan untuk gambar yang diunggah
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# Path ke file kredensial Firebase
+cred = credentials.Certificate("firebase_credentials.json")  
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+def get_next_counter_value():
+    counter_ref = db.collection('counters').document('ocr_results_counter')
+    counter_doc = counter_ref.get()
+    if counter_doc.exists:
+        counter_value = counter_doc.get('count') + 1
+    else:
+        counter_value = 1
+    counter_ref.set({'count': counter_value})
+    return counter_value
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    data = request.json
+
+    if 'image' not in data:
+        return jsonify({'error': 'No image data in request'}), 400
+
+    # Decode the base64 image
+    image_data = base64.b64decode(data['image'])
+
+    # nama file dan path untuk menyimpan gambar
+    image_hasil = f'uploaded_image_{datetime.now().strftime("%Y%m%d%H%M%S")}.jpg'
+    image_path = os.path.join(UPLOAD_FOLDER, image_hasil)
+
+    # Simpan gambar ke file lokal
+    with open(image_path, 'wb') as f:
+        f.write(image_data)
+
+    # Panggil fungsi untuk membaca angka dari gambar
+    result = read_water_meter(image_path)
+
+    # Metadata
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H:%M:%S")
+
+    # Dapatkan nilai counter berikutnya untuk ID
+    ocr_result_id = get_next_counter_value()
+
+    # Buat dokumen baru di koleksi `ocr_results`
+    ocr_data = {
+        "id": ocr_result_id,
+        "device_id": "your_device_id",
+        "device_name": "kelompok5",
+        "date": date_str,
+        "time": time_str,
+        "image_filename": image_hasil,
+        "extracted_text": result
+    }
+
+    # Simpan data di Firestore
+    db.collection('ocr_results').document(str(ocr_result_id)).set(ocr_data)
+
+    response = {
+        "ocr_result_id": ocr_result_id,
+        "device_id": "your_device_id",
+        "device_name": "Kelompok5",
+        "date": date_str,
+        "time": time_str,
+        "image_filename": image_hasil,
+        "extracted_text": result
+    }
+
+    return jsonify(response), 200
+
+# Fungsi untuk mendeteksi dan mengambil angka berwarna merah
+def read_water_meter(image_path):
+    # Baca gambar
+    image = cv2.imread(image_path)
+
+    # Ubah gambar ke dalam skala abu-abu
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Gunakan pytesseract untuk melakukan OCR pada gambar
+    text = pytesseract.image_to_string(gray, config='--psm 6')
+
+    # Bersihkan hasil OCR dari karakter non-digit
+    cleaned_text = ''.join(filter(str.isdigit, text))
+
+    return cleaned_text
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

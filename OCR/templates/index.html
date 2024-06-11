@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flask OCR</title>
+  </head>
+  <body>
+    <h1>Hasil OCR</h1>
+    <p>{{ text }}</p>
+    <h2>Gambar Asli</h2>
+    <img src="{{ url_for('image') }}" alt="Original Image" />
+    <h2>Gambar yang Diproses</h2>
+    <img src="{{ url_for('static', filename='Images/processed.jpg') }}" alt="Processed Image" />
+  </body>
+</html>
