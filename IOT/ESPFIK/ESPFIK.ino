@@ -167,7 +167,7 @@ void loop() {
   }
 
   // Cek apakah waktu saat ini adalah 12:25, 12:30, atau 12:35
-  if (timeinfo.tm_hour == 13 && (timeinfo.tm_min == 25 || timeinfo.tm_min == 30 || timeinfo.tm_min == 35)) {
+  if (timeinfo.tm_hour == 12 && (timeinfo.tm_min == 25 || timeinfo.tm_min == 30 || timeinfo.tm_min == 35)) {
     if (!imageCaptured) {
       Serial.println("Capturing and sending image...");
       captureAndSendImage();
